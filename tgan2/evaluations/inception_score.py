@@ -63,7 +63,59 @@ def inception_score(classifier, samples, batchsize=100, splits=10, eps=1e-20):
         kl = xp.mean(xp.sum(kl, 1))
         scores[i] = xp.exp(kl)
 
+    # import pdb;pdb.set_trace()
     return xp.mean(scores), xp.std(scores)
+
+
+
+def compute_logits(classifier, samples, batchsize=100, splits=10, eps=1e-20):
+    """Compute the inception score for given images.
+
+    Default batchsize is 100 and split size is 10. Please refer to the
+    official implementation. It is recommended to to use at least 50000
+    images to obtain a reliable score.
+
+    Reference:
+    https://github.com/openai/improved-gan/blob/master/inception_score/classifier.py
+
+    """
+    n = len(samples)
+    n_batches = int(math.ceil(float(n) / float(batchsize)))
+
+    xp = classifier.xp
+
+    # print('Batch size:', batchsize)
+    # print('Total number of images:', n)
+    # print('Total number of batches:', n_batches)
+
+    # Compute the softmax predicitions for for all images, split into batches
+    # in order to fit in memory
+
+    n_frames = samples.shape[1]
+    ys_all = []
+    for t in range(0, n_frames, 16):
+        print('Running time %i/%i...', t, n_frames)
+        ys = None  # Softmax container
+        for i in range(n_batches):
+
+            batch_start = (i * batchsize)
+            batch_end = min((i + 1) * batchsize, n)
+
+            samples_batch = np.transpose(samples[batch_start:batch_end, t:t+16].astype(np.float32), (0, 4, 1, 2, 3))/255.*2-1
+            samples_batch = xp.asarray(samples_batch)  # To GPU if using CuPy
+            samples_batch = Variable(samples_batch)
+
+            # import pdb;pdb.set_trace()
+            # Feed images to the inception module to get the softmax predictions
+            with chainer.using_config('train', False), chainer.using_config('enable_backprop', False):
+                y = F.softmax(classifier(samples_batch))
+            if ys is None:
+                n_class = y.shape[1]
+                ys = xp.empty((n, n_class), dtype=xp.float64)
+            ys[batch_start:batch_end] = y.data
+        ys_all.append(xp.asnumpy(ys))
+
+    return np.array(ys_all)
 
 
 def make_samples(gen, batchsize=100, n_samples=1000, n_frames=None):

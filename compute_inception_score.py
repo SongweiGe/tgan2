@@ -6,6 +6,7 @@ import warnings
 import chainer
 import numpy
 import yaml
+import numpy as np
 
 import tgan2
 import tgan2.evaluations.inception_score
@@ -27,7 +28,7 @@ def parse_args():
     parser.add_argument('--n-frames', type=int, default=16)
     args = parser.parse_args()
 
-    conf_dicts = [yaml.load(fp) for fp in args.infiles]
+    conf_dicts = [yaml.load(fp, yaml.Loader) for fp in args.infiles]
     config = make_config(conf_dicts, args.attrs)
     return config, args
 
@@ -40,7 +41,7 @@ def main(config, args):
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
-        gen.to_gpu()
+        # gen.to_gpu()
 
     conf_classifier = config['inception_score']['classifier']
     classifier = make_instance(tgan2, conf_classifier)
@@ -51,7 +52,15 @@ def main(config, args):
     if args.gpu >= 0:
         classifier.to_gpu()
 
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
+    # xs = np.load('/fs/vulcan-projects/contrastive_learning_songweig/TATS/results/numpy_files/ucf101/ucf101_real_train.npy')
+    # xs = np.load('/fs/vulcan-projects/contrastive_learning_songweig/TATS/results/numpy_files/ucf101/ucf101_real_test.npy')
+    # xs = np.load('/fs/vulcan-projects/contrastive_learning_songweig/TATS/results/numpy_files/ucf101/cond_gpt_ucf_128_488_29999_epoch=6-step=459999-train_topp0.92_topk2048_eval.npy')
+    # xs = [np.load('/fs/vulcan-projects/contrastive_learning_songweig/TATS/results/numpy_files/ucf101/cond_gpt_ucf_128_488_29999_epoch=21-step=1349999-train_topp0.80_topk2048_run%d_eval.npy'%i) for i in [0, 1, 2, 4, 5]]
+    # xs = [np.load('/fs/vulcan-projects/contrastive_learning_songweig/TATS/results/numpy_files/ucf101/cond_gpt_ucf_128_488_29999_epoch=21-step=1349999-train_topp0.80_topk2048_run%d_eval.npy'%i) for i in [3, 4, 5, 6, 7]]
+    xs = [np.load('/fs/vulcan-projects/contrastive_learning_songweig/TATS/results/numpy_files/ucf101/uncond_gpt_ucf_128_488_29999_epoch=21-step=1349999-train_topp0.92_topk16384_run%d_eval.npy'%i) for i in [7, 2, 5, 6, 8]]
+    xs = np.concatenate(xs, 0)
+    xs = np.transpose(xs.astype(np.float32), (0, 4, 1, 2, 3))/255.*2-1
     scores = []
     # for i in range(args.n_loops):
         # print('Loop {}'.format(i))

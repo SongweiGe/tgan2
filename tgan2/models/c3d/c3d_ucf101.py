@@ -25,7 +25,7 @@ class C3DVersion1UCF101(chainer.Chain):
     rows = 64
     cols = 64
 
-    def __init__(self, pretrained_model='auto', n_channels=3, n_outputs=101, mean_path='datasets/models/mean2.npz'):
+    def __init__(self, pretrained_model='auto', n_channels=3, n_outputs=101, mean_path='/fs/vulcan-projects/contrastive_learning_songweig/TATS/baselines/tgan2/mean2.npz'):
         super(C3DVersion1UCF101, self).__init__()
         if pretrained_model:
             # As a sampling process is time-consuming,
