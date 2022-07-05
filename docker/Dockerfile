@@ -64,9 +64,9 @@ USER root
 RUN pip3 install numpy
 RUN pip3 install \
     Cython==0.29.16 \
-    chainer==6.0.0 \
+    chainer==7.2.0 \
     chainercv==0.13.1 \
-    cupy-cuda100==6.0.0 \
+    cupy-cuda102==7.2.0 \
     h5py==2.10.0 \
     imageio==2.8.0 \
     imageio-ffmpeg==0.4.1 \

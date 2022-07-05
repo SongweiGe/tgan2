@@ -2,7 +2,7 @@ inception_score:
   classifier:
     name: C3DVersion1UCF101
     args:
-      pretrained_model: /fs/vulcan-projects/contrastive_learning_songweig/TATS/baselines/tgan2/conv3d_deepnetA_ucf.npz
+      pretrained_model: ./models/conv3d_deepnetA_ucf.npz
   batchsize: 16
   n_samples: 2048
   splits: 1
